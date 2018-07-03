@@ -1,4 +1,4 @@
-+#include "HX711.h"              //Bibliothek für Waage
+#include "HX711.h"              //Bibliothek für Waage
 #include <Wire.h>               //Bibliothek für LCD 
 #include <LiquidCrystal_I2C.h>  //Bibliothek für LCD 
 #include "benutzerv12.h"        //eigene Benutzerbibliothek

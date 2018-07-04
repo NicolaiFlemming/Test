@@ -1,4 +1,4 @@
-#include "HX711.h"
+mischen#include "HX711.h"
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include "benutzerv12.h"        //eigene Benutzerbibliothek

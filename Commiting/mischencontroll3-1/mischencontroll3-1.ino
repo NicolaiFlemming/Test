@@ -1,10 +1,10 @@
-#include "HX711.h"              //Bibliothek für Waage
-#include <Wire.h>               //Bibliothek für generellen LCD   
-#include <LiquidCrystal_I2C.h>  //Bibliothek für I2C LCD
-#include "benutzerv12.h"        //Eigene Benutzer Bibliothek
+#include "HX711.h"                      //Bibliothek für Waage
+#include <Wire.h>                       //Bibliothek für generellen LCD   
+#include <LiquidCrystal_I2C.h>          //Bibliothek für I2C LCD
+#include "benutzerv12.h"                //Eigene Benutzer Bibliothek
 
 #define DOUT 3
-#define CLK 2      //für HX711 Inputs
+#define CLK 2                           //für HX711 Inputs
 
 HX711 scale(DOUT, CLK);
 
@@ -73,21 +73,21 @@ void setup()
 
 void loop()
 {
-    if (phase == 0)                             //Auswahl Benutzerauswahl oder -erstellung
+    if (phase == 0)                                             //Auswahl Benutzerauswahl oder -erstellung
     {
         do
         {
-            lcd.setCursor(0, 0);                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-            lcd.print("Benutzer");              //Auf LCD-Bildschirm schreiben
-            lcd.setCursor(0, 1);                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-            lcd.print("auswählen/erstellen");   //Auf LCD-Bildschirm schreiben
+            lcd.setCursor(0, 0);                                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
+            lcd.print("Benutzer");                              //Auf LCD-Bildschirm schreiben
+            lcd.setCursor(0, 1);                                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
+            lcd.print("auswählen/erstellen");                   //Auf LCD-Bildschirm schreiben
 
-            if (digitalRead(But2) == HIGH)      //Benutzer auswählen und Phasenwechsel
+            if (digitalRead(But2) == HIGH)                      //Benutzer auswählen und Phasenwechsel
             {
                 phase = 1;
                 delay(1000);
             }
-            if (digitalRead(But3) == HIGH)      //Benutzer erstellen Phasenwechsel
+            if (digitalRead(But3) == HIGH)                      //Benutzer erstellen Phasenwechsel
             {
                 phase = 2;
                 delay(1000);
@@ -97,7 +97,7 @@ void loop()
         delay(10);
     }
 
-    if (phase == 1)                             //Auswahl Benutzer
+    if (phase == 1)                                             //Auswahl Benutzer
     {
         do
         {
@@ -109,11 +109,11 @@ void loop()
                 lcd.print("Benutzer ");
                 lcd.print(user + 1);
             }
-            if (user == (usercount + 1))        //usercount nicht größer als max. max + 1 ist der Gastbenutzer
+            if (user == (usercount + 1))                        //usercount nicht größer als max. max + 1 ist der Gastbenutzer
             {
-                lcd.print("Gast");              //Gastdaten werden nicht gespeichert
+                lcd.print("Gast");                              //Gastdaten werden nicht gespeichert
             }
-            if (digitalRead(But2) == HIGH)      //Durch die User wechseln
+            if (digitalRead(But2) == HIGH)                      //Durch die User wechseln
             {
                 user -= 1;
                 if (user < 0)
@@ -127,9 +127,9 @@ void loop()
                     user = 0;
                 delay(500);
             }
-            if (digitalRead(But1) == HIGH)      //Benutzer bestätigen
+            if (digitalRead(But1) == HIGH)                      //Benutzer bestätigen
             {
-                phase = 3;                      //Einschenkvorgang wechseln
+                phase = 3;                                      //Einschenkvorgang wechseln
                 delay(1000);
             }
             delay(10);
@@ -137,29 +137,29 @@ void loop()
         delay(10);
     }
 
-    if (phase == 2) //Benutzererstellung
+    if (phase == 2)                                             //Benutzererstellung
     {
-        bool w = 0; //Wechsel zwischen Bildschirmen
+        bool w = 0;                                             //Wechsel zwischen Bildschirmen
         while (phase == 2)
         {
             if (usercount == max)
             {
                 lcd.setCursor(0, 0);
-                lcd.print("Keine Benutzer mehr"); //Benutzer voll. Reset des Systems um Tabelle zu löschen
+                lcd.print("Keine Benutzer mehr");               //Benutzer voll. Reset des Systems um Tabelle zu löschen
                 lcd.setCursor(0, 1);
                 lcd.print("Fortfahren als Gast");
                 delay(2000);
-                phase = 3; //Einschenkvorgang
+                phase = 3;                                      //Einschenkvorgang
                 user = max + 1;
             }
             else
             {
                 float gew;
                 char gesch;
-                if (w == 0) //wechseln der eingabe
+                if (w == 0)                                     //wechseln der eingabe
                 {
                     PreRatio = (constrain(analogRead(Pot1), 0, 1023));
-                    Ratio = (PreRatio / 1023); //benutzen des potis um gewicht einzustellen
+                    Ratio = (PreRatio / 1023);                  //benutzen des potis um gewicht einzustellen
                     gew = 40 + (Ratio * 100);
 
                     lcd.setCursor(0, 0);
@@ -168,29 +168,29 @@ void loop()
 
                     delay(1000);
 
-                    lcd.setCursor(0, 0);              //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-                    lcd.print("Gewicht einstellen:"); //Auf LCD-Bildschirm schreiben
-                    lcd.setCursor(0, 1);              //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-                    lcd.print(gew);                   //Auf LCD-Bildschirm schreiben
+                    lcd.setCursor(0, 0);                        //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
+                    lcd.print("Gewicht einstellen:");           //Auf LCD-Bildschirm schreiben
+                    lcd.setCursor(0, 1);                        //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
+                    lcd.print(gew);                             //Auf LCD-Bildschirm schreiben
                     lcd.print(" kg  info = ok");
 
-                    if (digitalRead(But1) == HIGH) //Gewichtvariable Fest
+                    if (digitalRead(But1) == HIGH)              //Gewichtvariable Fest
                     {
                         w = 1;
                         delay(1000);
                     }
                 }
 
-                if (w == 1) //Geschlecht wichtig für Promille berechnung
+                if (w == 1)                                     //Geschlecht wichtig für Promille berechnung
                 {
-                    lcd.setCursor(0, 0);                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-                    lcd.print("Geschlecht auswählen:"); //Auf LCD-Bildschirm schreiben
-                    lcd.setCursor(0, 1);                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-                    lcd.print("Männlich/Weiblich");     //Auf LCD-Bildschirm schreiben
+                    lcd.setCursor(0, 0);                        //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
+                    lcd.print("Geschlecht auswählen:");         //Auf LCD-Bildschirm schreiben
+                    lcd.setCursor(0, 1);                        //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
+                    lcd.print("Männlich/Weiblich");             //Auf LCD-Bildschirm schreiben
 
                     if (digitalRead(But2) == HIGH)
                     {
-                        gesch = 'M'; //Männliches Geschlecht eingegeben
+                        gesch = 'M';                            //Männliches Geschlecht eingegeben
                         benutzer[usercount].set_kge(gew);
                         benutzer[usercount].set_gen(gesch);
                         usercount += 1;
@@ -199,7 +199,7 @@ void loop()
                     }
                     if (digitalRead(But3) == HIGH)
                     {
-                        gesch = 'W'; //Weibliches Geschlecht eingegeben
+                        gesch = 'W';                            //Weibliches Geschlecht eingegeben
                         benutzer[usercount].set_kge(gew);
                         benutzer[usercount].set_gen(gesch);
                         usercount += 1;
@@ -219,9 +219,9 @@ void loop()
     
     if (digitalRead(But1) == HIGH)
         {
-            btn = true;                                     //wenn Knopf gedrückt wurde wird btn bool Variable mit true ueberschrieben
-            scale.tare();                                   //bei knopfdruck tarieren
-            delay(500);                                     //halbe sekunde verzoegerung
+            btn = true;                                         //wenn Knopf gedrückt wurde wird btn bool Variable mit true ueberschrieben
+            scale.tare();                                       //bei knopfdruck tarieren
+            delay(500);                                         //halbe sekunde verzoegerung
         }
 
         if (btn == false)                                       //Alles was passieren soll bevor der knopf gedrückt wird
@@ -252,16 +252,16 @@ void loop()
             lcd.print("ml ");
         }
 
-        weight = (scale.get_units() * 1000);                //einholen der werte von der Waage und Umwandlung in Gramm
-        weightP = weight;                                   //definieren der variable fuer Gewicht
+        weight = (scale.get_units() * 1000);                    //einholen der werte von der Waage und Umwandlung in Gramm
+        weightP = weight;                                       //definieren der variable fuer Gewicht
 
         if (btn == true)
         {
-            lcd.setCursor(0, 1);                            //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-            lcd.print("Gewicht:  ");                        //Auf LCD-Bildschirm schreiben
+            lcd.setCursor(0, 1);                                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
+            lcd.print("Gewicht:  ");                            //Auf LCD-Bildschirm schreiben
             lcd.setCursor(10, 1);
-            lcd.print(weightP);                             //Ausgabe des Gewichts auf dem LCD Bildschirm
-            lcd.print(" g  ");                              //Einheit
+            lcd.print(weightP);                                 //Ausgabe des Gewichts auf dem LCD Bildschirm
+            lcd.print(" g  ");                                  //Einheit
         }
 
         if (VolAlc > weightP & weightP > -10 & btn == true)     //Schleife fuer Relais Alkohol auf Pin4
@@ -282,7 +282,7 @@ void loop()
             digitalWrite(RelaisMix, LOW);
         }
 
-        if (weightP >= VolAlc + VolMix)                     //beenden der Schleife durch btn bool variable
+        if (weightP >= VolAlc + VolMix)                         //beenden der Schleife durch btn bool variable
         {
             btn = false;
         }
@@ -291,9 +291,9 @@ void loop()
         {
             char temp = Serial.read();
             if (temp == 't' || temp == 'T')
-            scale.tare();                               //bei eingabe von 't' oder 'T' auf dem seriellen Monitor wird die waage tariert
+            scale.tare();                                       //bei eingabe von 't' oder 'T' auf dem seriellen Monitor wird die waage tariert
         }
     } 
-    delay(10);                                          //Verzögerung des gesamten Loops
+    delay(10);                                                  //Verzögerung des gesamten Loops
 }
 //=============================================================================================

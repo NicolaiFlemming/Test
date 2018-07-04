@@ -31,7 +31,6 @@ void setup()
     lcd.print("Gewicht:");
 
     digitalWrite(RelaisAlc, LOW);
-    digitalWrite(RelaisMix, LOW);           //Ausstellen der Relais
 
     delay(2000);                            //benötigte Verzoegerung fuer tarieren
     scale.tare();                           //2. Kalibrierung

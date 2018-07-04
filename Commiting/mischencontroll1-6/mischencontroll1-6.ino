@@ -12,8 +12,10 @@ LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE); //LCD-Verbindunge
 float calibration_factor = -92450;      //Kalibrierungsfaktor für unsere Load Cell
 float weight;                           //erklären der Variable, welche die Waage nutzt
 int weightP;                            //Nachkommastellen loswerden, durch int
+
 int RelaisAlc = 4;                      //Definieren des Ports fuer Relais 1
 int RelaisMix = 5;                      //Definieren des Ports fuer Relais 2
+
 int VolAlc = 50;                        //50ml als Experimentalwert
 int VolMix = 70;                        //70ml als experimentalwert
 
@@ -31,6 +33,9 @@ void setup()
     lcd.backlight();
     lcd.setCursor(0, 0);                    //Definieren wo auf LCD-Bildschirm Geschrieben wird
     lcd.print("Gewicht:");
+
+    pinMode(RelaisAlc, OUTPUT);             
+    pinMode(RelaisMix, OUTPUT);             //Defininieren der Relais Ports als Output
 
     digitalWrite(RelaisAlc, LOW);
     digitalWrite(RelaisMix, LOW);           //Ausstellen der Relais

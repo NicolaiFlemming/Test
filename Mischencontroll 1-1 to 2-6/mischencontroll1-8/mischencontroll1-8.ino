@@ -16,7 +16,7 @@ char But = A0;      //Port für Button
 char Pot = A5;      //Port für Potentiometer
 int VolAlc;         //Volumen Alkohol 
 int VolMix;         //Volumen Mixgetränk
-int VolGes = 150+10;   //Volumen Gesamt
+int VolGes = 150;   //Volumen Gesamt
 int AlcPerc;        //Prozentsatz Alkohol
 int MixPerc;        //Prozentsatz Mischgetränk   
 float Ratio;        //Mischverhältnis

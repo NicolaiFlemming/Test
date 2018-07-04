@@ -34,9 +34,6 @@ void setup()
     lcd.setCursor(0, 0);                    //Definieren wo auf LCD-Bildschirm Geschrieben wird
     lcd.print("Gewicht:");
 
-    pinMode(RelaisAlc, OUTPUT);             
-    pinMode(RelaisMix, OUTPUT);             //Defininieren der Relais Ports als Output
-
     digitalWrite(RelaisAlc, LOW);
     digitalWrite(RelaisMix, LOW);           //Ausstellen der Relais
 

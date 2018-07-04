@@ -36,18 +36,6 @@ class benutzer
 
 
 
-// check funktion
-
-int check(int inf,int anzbe); // Soll überprüfen ob ob angeforderter Benutzer existiert
-int check(int inf,int anzbe)
-{
-    if (inf>anzbe)
-    {return false;
-    }
-   else return true;
-
-}
-
 int main()
 { 
     int auswahl;   // Momentaner benutzer indize
@@ -55,7 +43,7 @@ int main()
     cout<<"wie viele Benutzer soll es geben?"<<endl;
     cin>>anzben;
     benutzer benutzer[anzben];         // Erstellen der Objekte
-   for (auswahl=0; auswahl<=anzben ; auswahl++)     // Schrittweise füllen der Objekte
+   for (auswahl=1; auswahl<=anzben ; auswahl++)     // Schrittweise füllen der Objekte
    {
    
     
@@ -73,34 +61,29 @@ int main()
     benutzer[auswahl].set_gen(gesch);                                             // festlegen des Geschlechts
     benutzer[auswahl].err_sufflvl(gew, gesch, benutzer[auswahl].get_alkges());    // Berechnen des Promille Gehalts
 
-    if (benutzer[auswahl].err_sufflvl(gew,gesch,benutzer[auswahl].get_alkges())== false)  // Fehlermeldung wenn Geschlecht falsch angegeben
+ 
+
+        if (benutzer[auswahl].err_sufflvl(gew,gesch,benutzer[auswahl].get_alkges())== false)  // Fehlermeldung wenn Geschlecht falsch angegeben
     {
         cout<<"Fehler! bitte M oder W eingeben"<<endl;
         cin>>gesch;
         benutzer[auswahl].set_gen(gesch);
         benutzer[auswahl].err_sufflvl(gew, gesch, benutzer[auswahl].get_alkges());
-    } 
-
-    
+    }
    }
    
-   int info;                                                                     // Variable für Auswahl für Information über jeweiligen Benutzer
+   int info;
    cout<<"Ueber welchen Benutzer wollen sie informationen?"<<endl;
    cin>>info;
-
-   check(info,anzben);                                                          // Überprüfen ob Benutzer existiert
-
-   if (check(info,anzben)==false)
-   {
-       cout<<"Benutzer nicht gefunden"<<endl;
-       return 0;
-    }
-   cout<<"   Benutzer:"<<info<<endl;                                            // Ausgabe der Informationen über den benutzer
+   cout<<"   Benutzer:"<<info<<endl;
     cout<<"Gewicht    =    "<<benutzer[info].get_kge()<<endl;
     cout<<"Geschlecht =    "<<benutzer[info].get_gen()<<endl;
     cout<<"Sufflvl    =    "<<benutzer[info].get_sufflvl()<<endl;
     return 0;
 }
+
+
+
 
 
 //Methoden 
@@ -145,6 +128,5 @@ bool benutzer::err_sufflvl(int kge, char gen, int alkges ){  // Errechnen des Pr
 
     // Bei falscheingabe des Geschlechts wird das Wert der Methode auf false gesetzt. Dies wird später in der Hauptfunktion abgefragt
 }
-
 
 

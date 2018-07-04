@@ -80,67 +80,68 @@ void loop()
   
   if(digitalRead(But1) == HIGH ) //bei Button drück Analog Wert > 1000
   {
-  btn = true;     //wenn Knopf gedrückt wurde wird btn bool Variable mit true ueberschrieben
-  scale.tare();   //bei knopfdruck tarieren
-  delay(50);     //halbe sekunde verzoegerung
+    btn = true;     //wenn Knopf gedrückt wurde wird btn bool Variable mit true ueberschrieben
+    scale.tare();   //bei knopfdruck tarieren
+    delay(50);     //halbe sekunde verzoegerung
   }
 
-if (btn == false) //Alles was passieren soll bevor der knopf gedrückt wird
-{
-  PreRatio = (constrain(analogRead(Pot), 0, 1023));     //analog werte des Potentiometers zwischen 0 und 1023 (8bit) beschraenken und auf PreRatio Variable schreiben
-  Ratio = (PreRatio/1023);                              //Variable umrechnen zu einem Verhaeltnis für VolAlc und VolMix
-  VolAlc = (VolGes * Ratio);                            //VolAlc mithilfe der Ratio Variable berechnen
-  VolMix = (VolGes - VolAlc);                           //Volmix mithilfe von VolGes und VolAlc berechnen
-  AlcPerc = (Ratio*101);                                //Prozentsatz Alkohol mithilfe der Ratio Variablen berechnen. 101 wegen rundungsfehlern
-  MixPerc = ((1-Ratio)*101);                            //Prozentsatz Mischgetraenk mithilfe der Ratio Variablen berechnen. 101 wegen rundungsfehlern
-  PreVol = (constrain(analogRead(Pot2), 0 , 1023));
-  Vol = (PreVol/1023);
-  VolGes = (100+(Vol)*400);
+  if (btn == false) //Alles was passieren soll bevor der knopf gedrückt wird
+  {
+    PreRatio = (constrain(analogRead(Pot), 0, 1023));     //analog werte des Potentiometers zwischen 0 und 1023 (8bit) beschraenken und auf PreRatio Variable schreiben
+    Ratio = (PreRatio/1023);                              //Variable umrechnen zu einem Verhaeltnis für VolAlc und VolMix
+    VolAlc = (VolGes * Ratio);                            //VolAlc mithilfe der Ratio Variable berechnen
+    VolMix = (VolGes - VolAlc);                           //Volmix mithilfe von VolGes und VolAlc berechnen
+    AlcPerc = (Ratio*101);                                //Prozentsatz Alkohol mithilfe der Ratio Variablen berechnen. 101 wegen rundungsfehlern
+    MixPerc = ((1-Ratio)*101);                            //Prozentsatz Mischgetraenk mithilfe der Ratio Variablen berechnen. 101 wegen rundungsfehlern
+    PreVol = (constrain(analogRead(Pot2), 0 , 1023));
+    Vol = (PreVol/1023);
+    VolGes = (100+(Vol)*400);
 
 
-  lcd.setCursor(0,0);     //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-  lcd.print("Ratio:");    //Auf LCD-Bildschirm schreiben
-  lcd.setCursor (10,0);
-  lcd.print (AlcPerc);
-  lcd.print ("/");
-  lcd.print (MixPerc);
-  lcd.print (" ");
+    lcd.setCursor(0,0);     //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
+    lcd.print("Ratio:");    //Auf LCD-Bildschirm schreiben
+    lcd.setCursor (10,0);
+    lcd.print (AlcPerc);
+    lcd.print ("/");
+    lcd.print (MixPerc);
+    lcd.print (" ");
 
-  lcd.setCursor(0,1);     //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-  lcd.print("Volumen:");  //Auf LCD-Bildschirm schreiben
-  lcd.setCursor (10,1);
-  lcd.print (VolGes);
-  lcd.print ("ml ");
-}
+    lcd.setCursor(0,1);     //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
+    lcd.print("Volumen:");  //Auf LCD-Bildschirm schreiben
+    lcd.setCursor (10,1);
+    lcd.print (VolGes);
+    lcd.print ("ml ");
+  }
 
   weight = (scale.get_units()*1000);    //einholen der werte von der Waage und Umwandlung in Gramm
   weightP = weight;                     //definieren der variable fuer Gewicht
-if (btn==true)
-{
-  lcd.setCursor(0,1);     //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-  lcd.print("Gewicht:");  //Auf LCD-Bildschirm schreiben
-  lcd.setCursor(10,1);
-  lcd.print(weightP);                   //Ausgabe des Gewichts auf dem LCD Bildschirm
-  lcd.print(" g  " );                   //Einheit
-                     //Ausgabe des Verhaeltnisses auf dem LCD Bildschirm
-}
+  
+  if (btn==true)
+  {
+    lcd.setCursor(0,1);     //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
+    lcd.print("Gewicht:");  //Auf LCD-Bildschirm schreiben
+    lcd.setCursor(10,1);
+    lcd.print(weightP);     //Ausgabe des Gewichts auf dem LCD Bildschirm
+    lcd.print(" g  " );     //Einheit
+                            //Ausgabe des Verhaeltnisses auf dem LCD Bildschirm
+  }
 
   if( VolAlc > weightP & weightP > -10 & btn == true ) //Schleife fuer Relais Alkohol auf Pin4
   {
-  digitalWrite(RelaisAlc, HIGH);
+    digitalWrite(RelaisAlc, HIGH);
   }
   else
   {
-  digitalWrite(RelaisAlc, LOW);
+    digitalWrite(RelaisAlc, LOW);
   }
 
-if( VolMix + VolAlc >= weightP & VolAlc < weightP & btn==true )     //Schleife fuer Relais Mischgetraenk auf Pin5
+  if( VolMix + VolAlc >= weightP & VolAlc < weightP & btn==true )     //Schleife fuer Relais Mischgetraenk auf Pin5
   {
-  digitalWrite(RelaisMix, HIGH);
+    digitalWrite(RelaisMix, HIGH);
   }
   else
   {
-  digitalWrite(RelaisMix, LOW);
+    digitalWrite(RelaisMix, LOW);
   }
 
   if(weightP >= VolAlc + VolMix)  //beenden der Schleife durch btn bool variable
@@ -149,12 +150,12 @@ if( VolMix + VolAlc >= weightP & VolAlc < weightP & btn==true )     //Schleife f
   }
 
 
-   if(Serial.available()) //Bei Input von T -> tarieren
+  if(Serial.available()) //Bei Input von T -> tarieren
   {
     char temp = Serial.read();        //Eingabe eines charakters
     if(temp == 't' || temp == 'T')    //wenn eingegebener charakter t ist wird tariert
-      scale.tare();                   //Befehl zum Tarieren
-   }
+    scale.tare();                     //Befehl zum Tarieren
+  }
 
   delay(10); //Verzoegerung des gesamten Loops
 }

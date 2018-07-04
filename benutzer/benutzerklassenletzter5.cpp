@@ -1,4 +1,14 @@
-#include <iostream>					// Praeprozessoranweisung
+/*-------------------------------------------Beschreibung-------------------------------------------------
+Dies ist die fertige Testversion für die Benutzerklassen. Der Code in der Hauptfunktion wird in stark 
+abgewandelter Form in der loop-Funktion der ino-Datei eingefügt werden. Alle Befehle sind zur einfachen
+Überprüfung für das Terminal (io stream) geschrieben und müssen durch für den Arduino interpretierbare 
+Informationen umgeschrieben werden. 
+---------------------------------------------------------------------------------------------------------*/
+
+
+
+
+#include <iostream>					
 
 using namespace std;
 //Klassendefinition

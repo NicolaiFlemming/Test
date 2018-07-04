@@ -35,7 +35,7 @@ bool checkPoti(float Pot, int Vol)              //Erste Funktion Nicolai Flemmin
     }
 }
 
-float volCalc(float poti)                             //Zweite Funktion Nicolai Flemming
+float volCalc(float poti)                       //Zweite Funktion Nicolai Flemming
 {
     float out;                                  //Wechselt Potieingang zu gewünschtem Volumen
     out = (poti / 1023) * 400 + 100;
@@ -50,6 +50,6 @@ float volCalc(float poti)                             //Zweite Funktion Nicolai 
 int shortit(float weight)                       //Zweite Funktion Tibor Baedecker
 {
     int weightP;
-    weight * 1000 = weightP;
+    weightP = (weight * 1000);
     return weightP;
 }

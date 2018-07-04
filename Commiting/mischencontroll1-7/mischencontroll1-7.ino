@@ -15,9 +15,12 @@ int weightP;                            //Nachkommastellen loswerden, durch int
 
 int RelaisAlc = 4;                      //Definieren des Ports fuer Relais 1
 int RelaisMix = 5;                      //Definieren des Ports fuer Relais 2
+char But = A0;                          //Port für Button
 
 int VolAlc = 50;                        //50ml als Experimentalwert
-int VolMix = 70;                        //70ml als experimentalwert
+int VolMix = 70;                        //70ml als Experimentalwert
+
+bool btn = false;                       //Wert für Button
 
 //=============================================================================================
 //=============================================================================================
@@ -49,13 +52,18 @@ void setup()
 
 void loop()
 {
-    weight = (scale.get_units() * 1000);            //Umwandlung in Gramm
-    weightP = weight;                               //definieren der Variable für Gewicht
-    lcd.setCursor(0, 1);
-    lcd.print(weightP);                             //Ausgabe des Gewichts auf dem LCD Bildschirm
-    lcd.print(" g  ");                              //Einheit
+    if (analogRead(But) > 1000)
+    {
+        btn = true;
+    }
 
-    if (VolAlc > weightP)                           //Schleife fuer Relais 1 auf Pin4
+    weight = (scale.get_units() * 1000);                                //Umwandlung in Gramm
+    weightP = weight;                                                   //definieren der Variable für Gewicht
+    lcd.setCursor(0, 1);
+    lcd.print(weightP);                                                 //Ausgabe des Gewichts auf dem LCD Bildschirm
+    lcd.print(" g  ");                                                  //Einheit
+
+    if (VolAlc > weightP & weightP > -10 & btn == true)                 //Schleife fuer Relais 1 auf Pin4 mit failsafe wenn jemand sein Glas herunter nimmt  
     {
         digitalWrite(RelaisAlc, HIGH);
     }
@@ -63,14 +71,19 @@ void loop()
     {
         digitalWrite(RelaisAlc, LOW);
     }
-    
-    if (VolMix + VolAlc > weightP)                  //Schleife fuer Relais 2 Auf Pin5
+
+    if (VolMix + VolAlc >= weightP & VolAlc < weightP & btn == true)    //Schleife fuer Relais 1 auf Pin5 mit failsafe wenn jemand sein Glas herunter nimmt
     {
         digitalWrite(RelaisMix, HIGH);
     }
     else
     {
         digitalWrite(RelaisMix, LOW);
+    }
+
+    if (weightP >= VolAlc + VolMix)
+    {
+        btn = false;
     }
 
     if (Serial.available())

@@ -36,6 +36,10 @@ bool btn = false;                       //Wert für Button
 int phase = 0;                          //Phase des Systems
 int user = 0;                           //Aktuell ausgewählter Nutzer
 int usercount = 0;                      //Anzahl erstellter Benutzer
+bool sff;                               //Bool damit Sufflvl nur einmal pro phasendurchlauf im loop addiert wird
+const int max = 10;                     //Anzahl maximaler Benutzer
+
+benutzer benutzer[max];                 //initialisierung Benutzertabelle
 
 //=============================================================================================
 //=============================================================================================

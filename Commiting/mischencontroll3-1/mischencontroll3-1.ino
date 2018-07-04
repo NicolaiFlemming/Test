@@ -1,7 +1,7 @@
 #include "HX711.h"              //Bibliothek für Waage
 #include <Wire.h>               //Bibliothek für generellen LCD   
 #include <LiquidCrystal_I2C.h>  //Bibliothek für I2C LCD
-#include "benutzerv12.h"
+#include "benutzerv12.h"        //Eigene Benutzer Bibliothek
 
 #define DOUT 3
 #define CLK 2      //für HX711 Inputs
@@ -36,6 +36,10 @@ bool btn = false;                       //Wert für Button
 int phase = 0;                          //Phase des Systems
 int user = 0;                           //Aktuell ausgewählter Nutzer
 int usercount = 0;                      //Anzahl erstellter Benutzer
+bool sff;                               //Bool damit Sufflvl nur einmal pro phasendurchlauf im loop addiert wird
+const int max = 10;                     //Anzahl maximaler Benutzer
+
+benutzer benutzer[max];                 //initialisierung Benutzertabelle
 
 //=============================================================================================
 //=============================================================================================
@@ -133,65 +137,78 @@ void loop()
         delay(10);
     }
 
-    if (phase == 2)                                 //Benutzererstellung
+    if (phase == 2) //Benutzererstellung
     {
-        bool w = 0;                                 //Wechsel zwischen Bildschirmen
+        bool w = 0; //Wechsel zwischen Bildschirmen
         while (phase == 2)
         {
-            
-            float gew;
-            char gesch;
-            if (w == 0)                             //wechseln der eingabe
+            if (usercount == max)
             {
-                PreRatio = (constrain(analogRead(Pot1), 0, 1023));
-                Ratio = (PreRatio / 1023);          //benutzen des potis um gewicht einzustellen
-                gew = 40 + (Ratio * 100);
-
                 lcd.setCursor(0, 0);
-                lcd.print("Benutzer ");
-                lcd.print(usercount + 1);
-
-                delay(1000);
-
-                lcd.setCursor(0, 0);                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-                lcd.print("Gewicht einstellen:");   //Auf LCD-Bildschirm schreiben
-                lcd.setCursor(0, 1);                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-                lcd.print(gew);                     //Auf LCD-Bildschirm schreiben
-                lcd.print(" kg  info = ok");
-
-                if (digitalRead(But1) == HIGH)      //Gewichtvariable Fest
-                {
-                    w = 1;
-                    delay(1000);
-                }
+                lcd.print("Keine Benutzer mehr"); //Benutzer voll. Reset des Systems um Tabelle zu löschen
+                lcd.setCursor(0, 1);
+                lcd.print("Fortfahren als Gast");
+                delay(2000);
+                phase = 3; //Einschenkvorgang
+                user = max + 1;
             }
-
-            if (w == 1)                             //Geschlecht wichtig für Promille berechnung
+            else
             {
-                lcd.setCursor(0, 0);                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-                lcd.print("Geschlecht auswählen:"); //Auf LCD-Bildschirm schreiben
-                lcd.setCursor(0, 1);                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-                lcd.print("Männlich/Weiblich");     //Auf LCD-Bildschirm schreiben
+                float gew;
+                char gesch;
+                if (w == 0) //wechseln der eingabe
+                {
+                    PreRatio = (constrain(analogRead(Pot1), 0, 1023));
+                    Ratio = (PreRatio / 1023); //benutzen des potis um gewicht einzustellen
+                    gew = 40 + (Ratio * 100);
 
-                if (digitalRead(But2) == HIGH)
-                {
-                    gesch = 'M';                    //Männliches Geschlecht eingegeben
-                    benutzer[usercount].set_kge(gew);
-                    benutzer[usercount].set_gen(gesch);
-                    usercount += 1;
-                    phase = 3;
+                    lcd.setCursor(0, 0);
+                    lcd.print("Benutzer ");
+                    lcd.print(usercount + 1);
+
                     delay(1000);
+
+                    lcd.setCursor(0, 0);              //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
+                    lcd.print("Gewicht einstellen:"); //Auf LCD-Bildschirm schreiben
+                    lcd.setCursor(0, 1);              //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
+                    lcd.print(gew);                   //Auf LCD-Bildschirm schreiben
+                    lcd.print(" kg  info = ok");
+
+                    if (digitalRead(But1) == HIGH) //Gewichtvariable Fest
+                    {
+                        w = 1;
+                        delay(1000);
+                    }
                 }
-                if (digitalRead(But3) == HIGH)
+
+                if (w == 1) //Geschlecht wichtig für Promille berechnung
                 {
-                    gesch = 'W';                    //Weibliches Geschlecht eingegeben
-                    benutzer[usercount].set_kge(gew);
-                    benutzer[usercount].set_gen(gesch);
-                    usercount += 1;
-                    phase = 3;
-                    delay(1000);
+                    lcd.setCursor(0, 0);                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
+                    lcd.print("Geschlecht auswählen:"); //Auf LCD-Bildschirm schreiben
+                    lcd.setCursor(0, 1);                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
+                    lcd.print("Männlich/Weiblich");     //Auf LCD-Bildschirm schreiben
+
+                    if (digitalRead(But2) == HIGH)
+                    {
+                        gesch = 'M'; //Männliches Geschlecht eingegeben
+                        benutzer[usercount].set_kge(gew);
+                        benutzer[usercount].set_gen(gesch);
+                        usercount += 1;
+                        phase = 3;
+                        delay(1000);
+                    }
+                    if (digitalRead(But3) == HIGH)
+                    {
+                        gesch = 'W'; //Weibliches Geschlecht eingegeben
+                        benutzer[usercount].set_kge(gew);
+                        benutzer[usercount].set_gen(gesch);
+                        usercount += 1;
+                        phase = 3;
+                        delay(1000);
+                    }
+                    benutzer[usercount].set_sufflvl(0);
                 }
-                benutzer[usercount].set_sufflvl(0);
+                delay(10);
             }
             delay(10);
         }
@@ -207,33 +224,33 @@ void loop()
             delay(500);                                     //halbe sekunde verzoegerung
         }
 
-    if (btn == false)                                       //Alles was passieren soll bevor der knopf gedrückt wird
-    {
-        PreRatio = (constrain(analogRead(Pot1), 0, 1023));   //analog werte des Potentiometers zwischen 0 und 1023 (8bit) beschraenken und auf PreRatio Variable schreiben
-        Ratio = (PreRatio / 1023);                          //Variable umrechnen zu einem Verhaeltnis für VolAlc und VolMix
-        VolAlc = (VolGes * Ratio);                          //VolAlc mithilfe der Ratio Variable berechnen
-        VolMix = (VolGes - VolAlc);                         //Volmix mithilfe von VolGes und VolAlc berechnen
-        AlcPerc = (Ratio * 101);                            //Prozentsatz Alkohol mithilfe der Ratio Variablen berechnen. 101 wegen rundungsfehlern
-        MixPerc = ((1 - Ratio) * 101);                      //Prozentsatz Mischgetraenk mithilfe der Ratio Variablen berechnen. 101 wegen rundungsfehlern
+        if (btn == false)                                       //Alles was passieren soll bevor der knopf gedrückt wird
+        {
+            PreRatio = (constrain(analogRead(Pot1), 0, 1023));   //analog werte des Potentiometers zwischen 0 und 1023 (8bit) beschraenken und auf PreRatio Variable schreiben
+            Ratio = (PreRatio / 1023);                          //Variable umrechnen zu einem Verhaeltnis für VolAlc und VolMix
+            VolAlc = (VolGes * Ratio);                          //VolAlc mithilfe der Ratio Variable berechnen
+            VolMix = (VolGes - VolAlc);                         //Volmix mithilfe von VolGes und VolAlc berechnen
+            AlcPerc = (Ratio * 101);                            //Prozentsatz Alkohol mithilfe der Ratio Variablen berechnen. 101 wegen rundungsfehlern
+            MixPerc = ((1 - Ratio) * 101);                      //Prozentsatz Mischgetraenk mithilfe der Ratio Variablen berechnen. 101 wegen rundungsfehlern
 
-        PreVol = (constrain(analogRead(Pot2), 0, 1023));
-        Vol = (PreVol / 1023);
-        VolGes = (100 + (Vol)*400);
+            PreVol = (constrain(analogRead(Pot2), 0, 1023));
+            Vol = (PreVol / 1023);
+            VolGes = (100 + (Vol)*400);
 
-        lcd.setCursor(0, 0);                                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-        lcd.print("Ratio:");                                //Auf LCD-Bildschirm schreiben
-        lcd.setCursor(10, 0);
-        lcd.print(AlcPerc);
-        lcd.print("/");
-        lcd.print(MixPerc);
-        lcd.print(" ");
+            lcd.setCursor(0, 0);                                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
+            lcd.print("Ratio:");                                //Auf LCD-Bildschirm schreiben
+            lcd.setCursor(10, 0);
+            lcd.print(AlcPerc);
+            lcd.print("/");
+            lcd.print(MixPerc);
+            lcd.print(" ");
 
-        lcd.setCursor(0, 1);                                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-        lcd.print("Volumen:");                              //Auf LCD-Bildschirm schreiben
-        lcd.setCursor(10, 1);
-        lcd.print(VolGes);
-        lcd.print("ml ");
-    }
+            lcd.setCursor(0, 1);                                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
+            lcd.print("Volumen:");                              //Auf LCD-Bildschirm schreiben
+            lcd.setCursor(10, 1);
+            lcd.print(VolGes);
+            lcd.print("ml ");
+        }
 
         weight = (scale.get_units() * 1000);                //einholen der werte von der Waage und Umwandlung in Gramm
         weightP = weight;                                   //definieren der variable fuer Gewicht

@@ -26,10 +26,12 @@ class benutzer
     float get_sufflvl();
     int get_alkges();
     
+    void set_alkges(int alkges);    // set alkgesamt muss im Hauptprogramm interagiertwerden und jedes mal nach Abschluss eines Getränkes erhöht werden.
     void set_gen(char gen);
     void set_kge(int kge);
-    bool err_sufflvl(int kge, char gen,int alkges); 
-     // set alkgesamt muss im Hauptprogramm interagiertwerden und jedes mal nach Abschluss eines Getränkes erhöht werden.
+    void err_sufflvl(int kge, char gen,int alkges); 
+    void set_sufflvl(float sufflvl);
+     
 };
 
 int main(){ 
@@ -61,13 +63,7 @@ switch (auswahl){
         benutzer1.set_gen(gesch);
         benutzer1.err_sufflvl(gew, gesch, benutzer1.get_alkges());
         
-          while ( benutzer1.err_sufflvl(gew,gesch,benutzer1.get_alkges())== false)
-         {
-            cout<<"Fehler! bitte M oder W eingeben"<<endl;
-            cin>>gesch;
-            benutzer1.set_gen(gesch);
-            benutzer1.err_sufflvl(gew, gesch, benutzer1.get_alkges());
-         } 
+       
         
 
             cout<<"      Benutzer1:"<<endl;
@@ -93,16 +89,6 @@ switch (auswahl){
         benutzer2.set_kge(gew);
         benutzer2.set_gen(gesch);
         benutzer2.err_sufflvl(gew, gesch, benutzer2.get_alkges());
-
-        
-        while (benutzer2.err_sufflvl(gew,gesch,benutzer2.get_alkges())== false)
-         {
-            cout<<"Fehler! bitte M oder W eingeben"<<endl;
-            cin>>gesch;
-            benutzer2.set_gen(gesch);
-            benutzer2.err_sufflvl(gew, gesch, benutzer2.get_alkges());
-         } 
-         
 
         cout<<"      Benutzer2:"<<endl;
         cout<<"Gewicht    =    "<<benutzer2.get_kge()<<endl;
@@ -143,32 +129,35 @@ int benutzer::get_alkges(){     // Methode zum zugriff auf insgesamt verzehrten 
     return alkges;
 }
 
+void benutzer::set_sufflvl(float sufflvl)  // Methode zum manuellen festsetzen des Promillegehalts
+{
+    this -> sufflvl = sufflvl;
+}
+void benutzer::set_alkges(int alkges)    // Methode zum festlegen des verzehrten Alkohols
+{
+    this -> alkges = alkges;
+}
 void  benutzer::set_kge(int kge){  // Methode zum festlegen des Körpergewichts
     this->kge =kge;
 }
 void benutzer::set_gen(char gen){  // Methode zum festlegen des Geschlechts
     this->gen=gen;
 }
-bool benutzer::err_sufflvl(int kge, char gen, int alkges ){  // Errechnen des Promille-Gehalts
+void benutzer::err_sufflvl(int kge, char gen, int alkges ){  // Errechnen des Promille-Gehalts
     
     //Das Errechen des Alkoholgehalts im Blut erforlgt bei Männern und Frauen unterschiedlich, da der Wasser und Fett gehalt des Körpers variiert.
    
-    if (this->gen=='m' || this->gen=='M'){
-        this-> sufflvl = this->alkges/(this->kge*0.68);
-        return true;
-    }
-    if (this->gen=='W' || this->gen=='w'){
-        this->sufflvl = this->alkges/(this->kge*0.55);
-        return true;
-    }
-    if (this->gen!='m','M','w','W')
+    if (this->gen=='m' || this->gen=='M')
     {
-        return false;
+        this-> sufflvl = this->alkges/(this->kge*0.68);
+        
     }
+    if (this->gen=='W' || this->gen=='w')
+    {
+        this->sufflvl = this->alkges/(this->kge*0.55);
+        
+    }
+  
 
     // Bei falscheingabe des Geschlechts wird das Wert der Methode auf false gesetzt. Dies wird später in der Hauptfunktion abgefragt
 }
-
-
-
-

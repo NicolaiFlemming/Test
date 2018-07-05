@@ -28,7 +28,7 @@ class benutzer
     
     void set_gen(char gen);
     void set_kge(int kge);
-    void err_sufflvl(int kge, char gen,int alkges); 
+    bool err_sufflvl(int kge, char gen,int alkges); 
      // set alkgesamt muss im Hauptprogramm interagiertwerden und jedes mal nach Abschluss eines Getränkes erhöht werden.
 };
 
@@ -44,6 +44,7 @@ benutzer benutzer6;
 // Auswahl des Benutzers
 cout<<"druecken sie eine Zahl von 1-6 um einen benutzer auszuwaehlen"<<endl;
 cin>>auswahl;
+
 switch (auswahl){
     case 1:{
         
@@ -57,14 +58,20 @@ switch (auswahl){
         
        
 
-        benutzer1.set_kge(gew);
-        benutzer1.set_gen(gesch);
-        benutzer1.err_sufflvl(gew, gesch, benutzer1.get_alkges());
+        benutzer1.set_kge(gew);                                         // Festlegen des Körpergewichts für den Benutzer
+        benutzer1.set_gen(gesch);                                       // Festlegen des Gewichts für den Benutzer
+        benutzer1.err_sufflvl(gew, gesch, benutzer1.get_alkges());      // errechnen des Alkoholgehalts
         
-       
+          while ( benutzer1.err_sufflvl(gew,gesch,benutzer1.get_alkges())== false)    // Überprüfung der Eingabe
+         {
+            cout<<"Fehler! bitte M oder W eingeben"<<endl;
+            cin>>gesch;
+            benutzer1.set_gen(gesch);
+            benutzer1.err_sufflvl(gew, gesch, benutzer1.get_alkges());
+         } 
         
-
-            cout<<"      Benutzer1:"<<endl;
+            // Ausgabe der Daten über den Benutzer
+            cout<<"      Benutzer1:"<<endl;                                    
             cout<<"Gewicht    =    "<<benutzer1.get_kge()<<endl;
             cout<<"Geschlecht =    "<<benutzer1.get_gen()<<endl;
             cout<<"Sufflvl    =    "<<benutzer1.get_sufflvl()<<endl;
@@ -73,8 +80,8 @@ switch (auswahl){
     }
      case 2:{
         
-       int gew;                // Provisorische Variable für Gewicht zur Übergabe an Methode
-       char gesch;            // Provisorische Variable für gender zur Übergabe an Methode
+       int gew;                                                         // Provisorische Variable für Gewicht zur Übergabe an Methode
+       char gesch;                                                      // Provisorische Variable für gender zur Übergabe an Methode
        
         
         cout<<"Koerpergewicht eingeben"<<endl;
@@ -84,10 +91,20 @@ switch (auswahl){
         
        
 
-        benutzer2.set_kge(gew);
-        benutzer2.set_gen(gesch);
-        benutzer2.err_sufflvl(gew, gesch, benutzer2.get_alkges());
+        benutzer2.set_kge(gew);                                         // Festlegen des Körpergewichts für den Benutzer
+        benutzer2.set_gen(gesch);                                       // Festlegen des Gelschlechts für den Benzutzer
+        benutzer2.err_sufflvl(gew, gesch, benutzer2.get_alkges());      // Berechnen des Alkoholgehalts
 
+        
+        while (benutzer2.err_sufflvl(gew,gesch,benutzer2.get_alkges())== false)   // Überprüfung der Eingabe
+         {
+            cout<<"Fehler! bitte M oder W eingeben"<<endl;
+            cin>>gesch;
+            benutzer2.set_gen(gesch);
+            benutzer2.err_sufflvl(gew, gesch, benutzer2.get_alkges());
+         } 
+         
+        // Ausgabe der Daten über den Benutzer
         cout<<"      Benutzer2:"<<endl;
         cout<<"Gewicht    =    "<<benutzer2.get_kge()<<endl;
         cout<<"Geschlecht =    "<<benutzer2.get_gen()<<endl;
@@ -133,19 +150,22 @@ void  benutzer::set_kge(int kge){  // Methode zum festlegen des Körpergewichts
 void benutzer::set_gen(char gen){  // Methode zum festlegen des Geschlechts
     this->gen=gen;
 }
-void benutzer::err_sufflvl(int kge, char gen, int alkges ){  // Errechnen des Promille-Gehalts
+bool benutzer::err_sufflvl(int kge, char gen, int alkges ){  // Errechnen des Promille-Gehalts
     
     //Das Errechen des Alkoholgehalts im Blut erforlgt bei Männern und Frauen unterschiedlich, da der Wasser und Fett gehalt des Körpers variiert.
    
     if (this->gen=='m' || this->gen=='M'){
         this-> sufflvl = this->alkges/(this->kge*0.68);
-        
+        return true;
     }
     if (this->gen=='W' || this->gen=='w'){
         this->sufflvl = this->alkges/(this->kge*0.55);
-        
+        return true;
     }
-  
+    if (this->gen!='m','M','w','W')
+    {
+        return false;
+    }
 
     // Bei falscheingabe des Geschlechts wird das Wert der Methode auf false gesetzt. Dies wird später in der Hauptfunktion abgefragt
 }

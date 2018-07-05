@@ -298,7 +298,7 @@ void loop()
         if(weightP >= VolAlc + VolMix)  //beenden der Schleife durch btn bool variable
         {
             btn = false;
-           
+          
         }
 
 

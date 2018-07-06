@@ -303,14 +303,22 @@ void loop()
         lcd.print("Benutzer       ");                           //Auf LCD-Bildschirm schreiben
         lcd.print(user + 1);                                    //Auf LCD-Bildschirm schreiben
         lcd.setCursor(0, 1);                                    //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-        if (benutzer[user].get_sufflvl() < 1.5)                 //Benutzer noch nicht sehr betrunken
+        if (benutzer[user].get_sufflvl() <= 2)                  //Benutzer noch nicht sehr betrunken
         {
             lcd.print("Prost!!!        ");
         }
-        if (benutzer[user].get_sufflvl() >= 1.5)                //Benutzer wahrscheinlich betrunken
+        if (benutzer[user].get_sufflvl() > 2)                   //Benutzer wahrscheinlich betrunken
         {
             lcd.print("Wasser vllt?        ");
         }
+        delay(2000);
+
+        lcd.setCursor(0, 0);
+        lcd.print("Benutzer");
+        lcd.print(user + 1);
+        lcd.setCursor(0, 1);
+        lcd.print(benutzer[user].get_sufflvl());                //Ausgabe der ungefähren Promille
+
         delay(2000);
         phase = 0;                                              //Erster Bildschirm (von vorne)
     }

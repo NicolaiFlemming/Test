@@ -312,6 +312,14 @@ void loop()
             lcd.print("Wasser vllt?        ");
         }
         delay(2000);
+
+        lcd.setCursor(0, 0);
+        lcd.print("Benutzer");
+        lcd.print(user + 1);
+        lcd.setCursor(0, 1);
+        lcd.print(benutzer[user].get_sufflvl());                //Ausgabe der ungefähren Promille
+
+        delay(2000);
         phase = 0;                                              //Erster Bildschirm (von vorne)
     }
 }

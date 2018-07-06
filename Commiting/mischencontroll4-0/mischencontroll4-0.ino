@@ -37,6 +37,7 @@ int phase = 0;                          //Phase des Systems
 int user = 0;                           //Aktuell ausgewählter Nutzer
 int usercount = 0;                      //Anzahl erstellter Benutzer
 bool sff;                               //Bool damit Sufflvl nur einmal pro phasendurchlauf im loop addiert wird
+bool check = false;                     //Check Variable für Phase 3
 const int max = 10;                     //Anzahl maximaler Benutzer
 
 benutzer benutzer[max];                 //initialisierung Benutzertabelle
@@ -104,7 +105,7 @@ void loop()
         lcd.setCursor(0, 0);
         if (user <= usercount)
         {
-            lcd.print("Benutzer        ");
+            lcd.print("Benutzer ");
             lcd.print(user + 1);
         }
         if (user == (usercount + 1))                            //usercount nicht größer als max. max + 1 ist der Gastbenutzer
@@ -194,7 +195,8 @@ void loop()
                         phase = 3;
                         delay(1000);
                     }
-                    benutzer[usercount].set_sufflvl(0);
+                    benutzer[usercount].set_sufflvl(0);         //Promillezahl auf 0
+                    user = usercount;
                 }
             }
         }
@@ -202,87 +204,97 @@ void loop()
 
     if (phase == 3)
     {
-    
-    if (digitalRead(But1) == HIGH)
+        do
         {
-            btn = true;                                         //wenn Knopf gedrückt wurde wird btn bool Variable mit true ueberschrieben
-            scale.tare();                                       //bei knopfdruck tarieren
-            delay(50);                                          //halbe sekunde verzoegerung
-        }
-
-        if (btn == false)                                       //Alles was passieren soll bevor der knopf gedrückt wird
-        {
-            PreRatio = (constrain(analogRead(Pot1), 0, 1023));   //analog werte des Potentiometers zwischen 0 und 1023 (8bit) beschraenken und auf PreRatio Variable schreiben
-            Ratio = (PreRatio / 1023);                          //Variable umrechnen zu einem Verhaeltnis für VolAlc und VolMix
-            VolAlc = (VolGes * Ratio);                          //VolAlc mithilfe der Ratio Variable berechnen
-            VolMix = (VolGes - VolAlc);                         //Volmix mithilfe von VolGes und VolAlc berechnen
-            AlcPerc = (Ratio * 101);                            //Prozentsatz Alkohol mithilfe der Ratio Variablen berechnen. 101 wegen rundungsfehlern
-            MixPerc = ((1 - Ratio) * 101);                      //Prozentsatz Mischgetraenk mithilfe der Ratio Variablen berechnen. 101 wegen rundungsfehlern
-
-            PreVol = (constrain(analogRead(Pot2), 0, 1023));
-            Vol = (PreVol / 1023);
-            VolGes = (100 + (Vol)*400);
-
-            lcd.setCursor(0, 0);                                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-            lcd.print("Ratio:");                                //Auf LCD-Bildschirm schreiben
-            lcd.setCursor(10, 0);
-            lcd.print(AlcPerc);
-            lcd.print("/");
-            lcd.print(MixPerc);
-            lcd.print(" ");
-
-            lcd.setCursor(0, 1);                                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-            lcd.print("Volumen:");                              //Auf LCD-Bildschirm schreiben
-            lcd.setCursor(10, 1);
-            lcd.print(VolGes);
-            lcd.print("ml ");
-        }
-
-        weight = (scale.get_units() * 1000);                    //einholen der werte von der Waage und Umwandlung in Gramm
-        weightP = weight;                                       //definieren der variable fuer Gewicht
-
-        if (btn == true)
-        {
-            lcd.setCursor(0, 1);                                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-            lcd.print("Gewicht:  ");                            //Auf LCD-Bildschirm schreiben
-            lcd.setCursor(10, 1);
-            lcd.print(weightP);                                 //Ausgabe des Gewichts auf dem LCD Bildschirm
-            lcd.print(" g  ");                                  //Einheit
-        }
-
-        if (VolAlc > weightP & weightP > -10 & btn == true)     //Schleife fuer Relais Alkohol auf Pin4
-        {
-            digitalWrite(RelaisAlc, HIGH);
-        }
-        else
-        {
-            digitalWrite(RelaisAlc, LOW);
-        }
-
-        if (VolMix + VolAlc >= weightP & VolAlc < weightP & btn == true) //Schleife fuer Relais Mischgetränk auf Pin5
-        {
-            digitalWrite(RelaisMix, HIGH);
-        }
-        else
-        {
-            digitalWrite(RelaisMix, LOW);
-        }
-
-        if (weightP >= VolAlc + VolMix)                         //beenden der Schleife durch btn bool variable
-        {
-            btn = false;
-            sff = true;
-            phase = 4;
-        }
-
-        if (Serial.available())
-        {
-            char temp = Serial.read();
-            if (temp == 't' || temp == 'T')
+            if (digitalRead(But1) == HIGH)
             {
-            scale.tare(); 
-            }                                                   //bei eingabe von 't' oder 'T' auf dem seriellen Monitor wird die waage tariert
-        }delay(10);
+                btn = true;                                         //wenn Knopf gedrückt wurde wird btn bool Variable mit true ueberschrieben
+                scale.tare();                                       //bei knopfdruck tarieren
+                delay(50);                                          //halbe sekunde verzoegerung
+                check = true;
+            }
+
+            weight = (scale.get_units() * 1000);                    //einholen der werte von der Waage und Umwandlung in Gramm
+            weightP = weight;                                       //definieren der variable fuer Gewicht
+
+            if (btn == true)
+            {
+                lcd.setCursor(0, 1);     //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
+                lcd.print("Gewicht:  "); //Auf LCD-Bildschirm schreiben
+                lcd.setCursor(10, 1);
+                lcd.print(weightP); //Ausgabe des Gewichts auf dem LCD Bildschirm
+                lcd.print(" g  ");  //Einheit
+            }
+
+            else                                      //Alles was passieren soll bevor der knopf gedrückt wird
+            {
+                PreRatio = (constrain(analogRead(Pot1), 0, 1023));   //analog werte des Potentiometers zwischen 0 und 1023 (8bit) beschraenken und auf PreRatio Variable schreiben
+                Ratio = (PreRatio / 1023);                          //Variable umrechnen zu einem Verhaeltnis für VolAlc und VolMix
+                VolAlc = (VolGes * Ratio);                          //VolAlc mithilfe der Ratio Variable berechnen
+                VolMix = (VolGes - VolAlc);                         //Volmix mithilfe von VolGes und VolAlc berechnen
+                AlcPerc = (Ratio * 101);                            //Prozentsatz Alkohol mithilfe der Ratio Variablen berechnen. 101 wegen rundungsfehlern
+                MixPerc = ((1 - Ratio) * 101);                      //Prozentsatz Mischgetraenk mithilfe der Ratio Variablen berechnen. 101 wegen rundungsfehlern
+
+                PreVol = (constrain(analogRead(Pot2), 0, 1023));
+                Vol = (PreVol / 1023);
+                VolGes = (100 + (Vol)*400);
+
+                lcd.setCursor(0, 0);                                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
+                lcd.print("Ratio:    ");                            //Auf LCD-Bildschirm schreiben
+                lcd.setCursor(10, 0);
+                lcd.print(AlcPerc);
+                lcd.print("/");
+                lcd.print(MixPerc);
+                lcd.print(" ");
+
+                lcd.setCursor(0, 1);                                //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
+                lcd.print("Volumen:  ");                            //Auf LCD-Bildschirm schreiben
+                lcd.setCursor(10, 1);
+                lcd.print(VolGes);
+                lcd.print("ml ");
+            }
+
+            if (VolAlc > weightP & weightP > -10 & btn == true)     //Schleife fuer Relais Alkohol auf Pin4
+            {
+                digitalWrite(RelaisAlc, HIGH);
+            }
+            else
+            {
+                digitalWrite(RelaisAlc, LOW);
+            }
+
+            if (VolMix + VolAlc >= weightP & VolAlc < weightP & btn == true) //Schleife fuer Relais Mischgetränk auf Pin5
+            {
+                digitalWrite(RelaisMix, HIGH);
+            }
+            else
+            {
+                digitalWrite(RelaisMix, LOW);
+            }
+
+            if (weightP >= VolAlc + VolMix)                         //beenden der Schleife durch btn bool variable
+            {
+                btn = false;
+            }
+
+            if (Serial.available())
+            {
+                char temp = Serial.read();
+                if (temp == 't' || temp == 'T')
+                {
+                scale.tare(); 
+                }                                                   //bei eingabe von 't' oder 'T' auf dem seriellen Monitor wird die waage tariert
+            }
+            delay(10);
+            
+            if (weightP >= VolAlc + VolMix & btn == false & check == true)
+            {
+                sff = true;                                         //Wird einmal ausgeführt für die Berechnung
+                phase = 4;                                          //Nächste Phase (Schluss)
+                check = false;
+            }
+        }
+        while(phase = 3);
     } 
 
     if (phase == 4)                                             //Ende und eintragen der Werte in die Benutzertabelle
@@ -303,14 +315,22 @@ void loop()
         lcd.print("Benutzer       ");                           //Auf LCD-Bildschirm schreiben
         lcd.print(user + 1);                                    //Auf LCD-Bildschirm schreiben
         lcd.setCursor(0, 1);                                    //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-        if (benutzer[user].get_sufflvl() < 1.5)                 //Benutzer noch nicht sehr betrunken
+        if (benutzer[user].get_sufflvl() <= 2)                  //Benutzer noch nicht sehr betrunken
         {
             lcd.print("Prost!!!        ");
         }
-        if (benutzer[user].get_sufflvl() >= 1.5)                //Benutzer wahrscheinlich betrunken
+        if (benutzer[user].get_sufflvl() > 2)                   //Benutzer wahrscheinlich betrunken
         {
             lcd.print("Wasser vllt?        ");
         }
+        delay(2000);
+
+        lcd.setCursor(0, 0);
+        lcd.print("Benutzer");
+        lcd.print(user + 1);
+        lcd.setCursor(0, 1);
+        lcd.print(benutzer[user].get_sufflvl());                //Ausgabe der ungefähren Promille
+
         delay(2000);
         phase = 0;                                              //Erster Bildschirm (von vorne)
     }

@@ -1,3 +1,4 @@
+#include "functions.h"          //eigene Funktionenbibliothek
 #include "HX711.h"              //Bibliothek für Waage
 #include <Wire.h>               //Bibliothek für LCD 
 #include <LiquidCrystal_I2C.h>  //Bibliothek für LCD 
@@ -47,11 +48,11 @@ int usercount = 0;  //Anzahl erstellter Benutzer
 benutzer benutzer[max];         //initialisierung Benutzertabelle
 
 bool sff;                       //Bool damit Sufflvl nur einmal pro phasendurchlauf im loop addiert wird
-bool check = false;
+bool check = false;             //Bugfix weightP im ersten durchlauf nicht tariert
+bool state = false;
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-
 
 void setup() {
 
@@ -108,49 +109,48 @@ void loop()
                 delay(1000);
             }
         }
-        while(phase == 0);
+        while(checkPhase(0, phase) == true);
 
     }
 
     if(phase == 1)          //Auswahl Benutzer
     {
 
-            lcd.setCursor(0,1);
-            lcd.print("</>       T = ok");
-            lcd.setCursor(0,0);
-            if(user <= usercount )
-            {
-                lcd.print("Benutzer ");
-                lcd.print(user + 1);
-            } 
-            if(user == (usercount + 1))                             //usercount nicht größer als max. max + 1 ist der Gastbenutzer
-            {
-                lcd.print("Gast            ");                      //Gastdaten werden nicht gespeichert
-            }    
-            if(digitalRead(But2) == HIGH)                           //Durch die User wechseln
-            {
-                user -= 1;
-                if(user < 0) user = (usercount + 1);
-                delay(500);
-            }     
-            if(digitalRead(But3) == HIGH)
-            {
-                user += 1;
-                if(user > (usercount + 1)) user = 0;
-                delay(500);
-            }   
-            if(digitalRead(But1) == HIGH)                           //Benutzer bestätigen
-            {
-                phase = 3;                                          //Einschenkvorgang wechseln
-                delay(1000);
-            }      
-
+        lcd.setCursor(0,1);
+        lcd.print("</>       T = ok");
+        lcd.setCursor(0,0);
+        if(user < usercount )
+        {
+            lcd.print("Benutzer ");
+            lcd.print(user + 1);
+        } 
+        if(user == usercount)                             //usercount nicht größer als max. max + 1 ist der Gastbenutzer
+        {
+            lcd.print("Gast       ");                      //Gastdaten werden nicht gespeichert
+        }    
+        if(digitalRead(But2) == HIGH)                           //Durch die User wechseln
+        {
+            user -= 1;
+            if(user < 0) user = usercount;
+            delay(500);
+        }     
+        if(digitalRead(But3) == HIGH)
+        {
+            user += 1;
+            if(user > usercount) user = 0;
+            delay(500);
+        }   
+        if(digitalRead(But1) == HIGH)                           //Benutzer bestätigen
+        {
+            phase = 3;                                          //Einschenkvorgang wechseln
+            delay(1000);
+        }      
     }
 
     if(phase == 2)          //Benutzererstellung
     {
         bool w = 0;                                                     //Wechsel zwischen Bildschirmen
-        while(phase == 2)   	                                        
+        while(checkPhase(2, phase) == true)   	                                        
         {
             if(usercount == max)
             {
@@ -173,7 +173,7 @@ void loop()
                     gew = 40 + (Ratio * 100);
 
                     lcd.setCursor(0,0);                                 //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-                    lcd.print("Gewicht einst.: ");                   //Auf LCD-Bildschirm schreiben
+                    lcd.print("Gewicht einst.: ");                      //Auf LCD-Bildschirm schreiben
                     lcd.setCursor(0,1);                                 //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
                     lcd.print(gew);                                     //Auf LCD-Bildschirm schreiben
                     lcd.print(" kg T = ok     ");
@@ -211,7 +211,7 @@ void loop()
                         delay(1000);
                     }
                     benutzer[usercount].set_sufflvl(0);                     //Promille Zahl auf 0
-                    user = usercount;
+                    user = usercount - 1;
                 }    
             }
         }
@@ -232,8 +232,8 @@ void loop()
         {
             btn = true;     //wenn Knopf gedrückt wurde wird btn bool Variable mit true ueberschrieben
             scale.tare();   //bei knopfdruck tarieren
-            delay(50);     //halbe sekunde verzoegerung
-             check = true;
+            delay(50);      //halbe sekunde verzoegerung
+            check = true;   //Logik abfrage in Zeile 315 erst relevant wenn tariert wurde
         }
 
         
@@ -259,8 +259,7 @@ void loop()
             AlcPerc = (Ratio*101);                                //Prozentsatz Alkohol mithilfe der Ratio Variablen berechnen. 101 wegen rundungsfehlern
             MixPerc = ((1-Ratio)*101);                            //Prozentsatz Mischgetraenk mithilfe der Ratio Variablen berechnen. 101 wegen rundungsfehlern
             PreVol = (constrain(analogRead(Pot2), 0 , 1023));
-            Vol = (PreVol/1023);
-            VolGes = (100+(Vol)*400);
+            VolGes = volCalc(PreVol);
 
             lcd.setCursor(0,0);         //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
             lcd.print("Ratio:    ");    //Auf LCD-Bildschirm schreiben
@@ -316,10 +315,18 @@ void loop()
         {
             sff = true;                 //Wird einmal ausgeführt für die Berechnung
             phase = 4;                  //Nächste Phase (Schluss)
-            check = false;
+            check = false;              //Zurücksezen des checks
+        }
+        if(checkPoti(PreRatio, VolAlc + VolMix) == false)
+        {
+            phase = 0;
+            lcd.clear();
+            lcd.setCursor(0,1);
+            lcd.print("Unerwarteter Fehler");
+            delay(2000);
         }
         }
-        while(phase == 3);
+        while(checkPhase(3, phase) == true);
     }
 
     if(phase == 4)           //Ende und eintragen der Werte in die Benutzertabelle
@@ -328,39 +335,42 @@ void loop()
         float AlcSet;
         AlcinG = (VolAlc * 0.4);            //40%er Alkohol
     
-        if(sff == true)
+        if(sff == true & user != usercount)
         {
             AlcinGges = AlcinG + benutzer[user].get_alkges();
             benutzer[user].set_alkges(AlcinGges);
             benutzer[user].err_sufflvl(benutzer[user].get_kge(), benutzer[user].get_gen(), AlcinGges);
             sff = false;
         } 
-        
+
+        lcd.clear();
         lcd.setCursor(0,0);                         //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
-        lcd.print("Benutzer");                      //Auf LCD-Bildschirm schreiben
-        lcd.print(user + 1);                        //Auf LCD-Bildschirm schreiben
+        if(user == usercount)
+        {
+          lcd.print("Gast       ");
+        }
+        else
+        {
+          lcd.print("Benutzer");                      //Auf LCD-Bildschirm schreiben
+          lcd.print(user + 1);                        //Auf LCD-Bildschirm schreiben
+        }
         lcd.setCursor(0,1);                         //Definieren wo auf LCD-Bildschirm Geschrieben wird (Stelle, Zeile)
         if(benutzer[user].get_sufflvl() <= 2)       //Benutzer noch nicht sehr betrunken
         {
-            lcd.print("Prost!!!        ");
+            lcd.print("Prost!!!            ");
         }
         if(benutzer[user].get_sufflvl() > 2)     //Benutzer wahrscheinlich betrunken
         {
             lcd.print("Wasser vllt?        ");
         }      
         delay(2000);
-
-        lcd.clear();
-        lcd.setCursor(0,0);
-        lcd.print("Benutzer");
-        lcd.print(user + 1);
         lcd.setCursor(0,1);
+        lcd.print("Dein Level:");
         lcd.print(benutzer[user].get_sufflvl());    //Ausgabe der ungefähren Promille
 
         delay(2000);
-
-        phase = 0;                                  //Erster Bildschirm (von vorne)
+        state = true; 
     }
-
+    phase = Success(state, phase);
     delay(10);
 }

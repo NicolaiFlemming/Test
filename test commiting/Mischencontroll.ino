@@ -26,3 +26,42 @@ void setup()
     //Serial.print("Zero factor: "); //Kann benutzt werden um tarieren zu vermeiden
     //Serial.println(0);
 }
+
+//=============================================================================================
+//=============================================================================================
+void loop()
+{
+
+    scale.set_scale(calibration_factor); //hier wird der Kalibrierungsfaktor eingfügt
+
+    Serial.print("Reading: ");
+    Serial.print(scale.get_units(), 3);
+    Serial.print(" kg");
+    Serial.print(" calibration_factor: ");
+    Serial.print(calibration_factor);
+    Serial.println();
+
+    if (Serial.available())
+    {
+        char temp = Serial.read();
+        if (temp == '+' || temp == 'a')
+            calibration_factor += 10;
+        else if (temp == '-' || temp == 'z')
+            calibration_factor -= 10;
+        else if (temp == 's')
+            calibration_factor += 100;
+        else if (temp == 'x')
+            calibration_factor -= 100;
+        else if (temp == 'd')
+            calibration_factor += 1000;
+        else if (temp == 'c')
+            calibration_factor -= 1000;
+        else if (temp == 'f')
+            calibration_factor += 10000;
+        else if (temp == 'v')
+            calibration_factor -= 10000;
+        else if (temp == 't')
+            scale.tare(); //bei t tarieren
+    }
+}
+//=============================================================================================
